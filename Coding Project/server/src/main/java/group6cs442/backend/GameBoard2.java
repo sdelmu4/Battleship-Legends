@@ -24,16 +24,30 @@ public class GameBoard2 {
 		int[][] locations = new int[5][2];
 	}
 
-	class Tile {
+	class PlayerTile {
 		String type = "Empty";
 		String ID = "None";
 		boolean hit = false;
-		String serverBoardHitMarker = ". ";
 		String playerBoardPrintable = ". ";
+		
+		public PlayerTile() {
+			
+		}
+		
+		public PlayerTile(String tileType, String id) {
+			type = tileType;
+			ID = id;
+			playerBoardPrintable = id;
+		}
+	}
+	
+	class ServerTile {
+		boolean hit = false;
+		String serverBoardHitMarker = ". ";
 	}
 
-	private Tile[][] PlayerBoard;
-	private Tile[][] ServerBoard;
+	private PlayerTile[][] PlayerBoard;
+	private ServerTile[][] ServerBoard;
 
 	int LiveShips = 0;
 	ShipInfo[] allShips = new ShipInfo[5];
@@ -106,14 +120,13 @@ public class GameBoard2 {
 	// Default constructor. Initializes PlayerBoard and ServerBoard
 	// to 10x10 2D array with "." strings to make an empty board.
 	public GameBoard2() {
-		PlayerBoard = new Tile[10][10];
-		ServerBoard = new Tile[10][10];
+		PlayerBoard = new PlayerTile[10][10];
+		ServerBoard = new ServerTile[10][10];
 		
 		for (int i = 0; i < 10; i++) {
 			for (int j = 0; j < 10; j++) {
-				Tile t = new Tile();
-				PlayerBoard[i][j] = t;
-				ServerBoard[i][j] = t;
+				PlayerBoard[i][j] = new PlayerTile();
+				ServerBoard[i][j] = new ServerTile();
 			}
 		}
 	}
@@ -176,19 +189,13 @@ public class GameBoard2 {
 		String shipIdentifier = "B" + number;
 
 		if (err == 1) {
-
 			ShipInfo newShip = new ShipInfo();
-			Tile newTile = new Tile();
-			newTile.type = "Ship";
-			newTile.playerBoardPrintable = shipIdentifier;
-
-			newShip.shipName = shipIdentifier;
 			newShip.size = shipSize;
 
 			if (Objects.equals(orientation, "north")) {
 
 				for (int i = 0; i < shipSize; i++) {
-					PlayerBoard[row - i][col] = newTile;
+					PlayerBoard[row - i][col] = new PlayerTile("Ship", shipIdentifier);
 					newShip.locations[i][0] = row - i;
 					newShip.locations[i][1] = col;
 
@@ -196,7 +203,7 @@ public class GameBoard2 {
 			} else if (Objects.equals(orientation, "south")) {
 
 				for (int i = 0; i < shipSize; i++) {
-					PlayerBoard[row + i][col] = newTile;
+					PlayerBoard[row + i][col] = new PlayerTile("Ship", shipIdentifier);
 					newShip.locations[i][0] = row + i;
 					newShip.locations[i][1] = col;
 
@@ -204,7 +211,7 @@ public class GameBoard2 {
 			} else if (Objects.equals(orientation, "east")) {
 
 				for (int i = 0; i < shipSize; i++) {
-					PlayerBoard[row][col + i] = newTile;
+					PlayerBoard[row][col + i] = new PlayerTile("Ship", shipIdentifier);
 					newShip.locations[i][0] = row;
 					newShip.locations[i][1] = col + i;
 
@@ -212,7 +219,7 @@ public class GameBoard2 {
 			} else if (Objects.equals(orientation, "west")) {
 
 				for (int i = 0; i < shipSize; i++) {
-					PlayerBoard[row][col - i] = newTile;
+					PlayerBoard[row][col - i] = new PlayerTile("Ship", shipIdentifier);
 					newShip.locations[i][0] = row;
 					newShip.locations[i][1] = col - i;
 
@@ -232,37 +239,46 @@ public class GameBoard2 {
 
 	}
 
-	// // hit()
-	// //
-	// //
-	// // Method marks hits or misses on the PlayerBoard and ServerBoard
-	// // Requires a row, col coordinate
-	// // Method also makes calls to the checkSunkenShup() method
-	// // to check for any sunken ships
-	// //
-	// public void hit(int row, int col, String color) {
-	// 	if (row >= 0 && row < 10 && col >= 0 && col < 10) {
-	// 		String cell = PlayerBoard[row][col];
-	// 		// cannot hit the same spot twice by anyone else or the same player
-	// 		if (!cell.contains("H_") && !cell.contains("M_")) {
-	// 			if (cell.contains("B")) {
-	// 				String hitMarker = cell + "H_" + color;
-	// 				PlayerBoard[row][col] = hitMarker;
-	// 				ServerBoard[row][col] = "H_" + color;
-	// 				checkSunkenShip();
-	// 			} else if (cell.contains("P")) {
-	// 				PlayerBoard[row][col] = "P_HIT_" + color;
-	// 				ServerBoard[row][col] = "P_HIT_" + color;
-	// 			} else if (cell.contains("D")) {
-	// 				PlayerBoard[row][col] = "DH_" + color;
-	// 				ServerBoard[row][col] = "DH_" + color;
-	// 			} else {
-	// 				PlayerBoard[row][col] = "M_" + color;
-	// 				ServerBoard[row][col] = "M_" + color;
-	// 			}
-	// 		}
-	// 	}
-	// }
+	 // hit()
+	 //
+	 //
+	 // Method marks hits or misses on the PlayerBoard and ServerBoard
+	 // Requires a row, col coordinate
+	 // Method also makes calls to the checkSunkenShup() method
+	 // to check for any sunken ships
+	 //
+	 public void hit(int row, int col, String color) {
+	 	if (row >= 0 && row < 10 && col >= 0 && col < 10) {
+	 		PlayerTile cell = PlayerBoard[row][col];
+	 		ServerTile mark = new ServerTile();
+	 		// cannot hit the same spot twice by anyone else or the same player
+	 		if (cell.hit == false) {
+	 			if (cell.type == "Ship") {
+	 				String hitMarker = cell.playerBoardPrintable + "H_" + color;
+	 				cell.playerBoardPrintable = hitMarker;
+	 				cell.hit = true;
+	 				mark.serverBoardHitMarker = "H_" + color;
+	 				mark.hit = true;
+	 				//checkSunkenShip();
+//	 			} else if (cell.contains("P")) {
+//	 				PlayerBoard[row][col] = "P_HIT_" + color;
+//	 				ServerBoard[row][col] = "P_HIT_" + color;
+//	 			} else if (cell.contains("D")) {
+//	 				PlayerBoard[row][col] = "DH_" + color;
+//	 				ServerBoard[row][col] = "DH_" + color;
+	 			} else {
+	 				cell.playerBoardPrintable = "M_" + color;
+	 				cell.hit = true;
+	 				mark.serverBoardHitMarker = "M_" + color;
+	 				mark.hit = true;
+
+	 			}
+	 			
+	 			PlayerBoard[row][col] = cell;
+	 			ServerBoard[row][col] = mark;
+	 		}
+	 	}
+	 }
 
 	// //
 	// //
@@ -479,8 +495,8 @@ public class GameBoard2 {
 	// Method prints the current state of PlayerBoard and ServerBoard
 	void printBoard() {
 		System.out.println("PlayerBoard:");
-		for (Tile[] row : PlayerBoard) {
-			for (Tile column : row) {
+		for (PlayerTile[] row : PlayerBoard) {
+			for (PlayerTile column : row) {
 				System.out.print(column.playerBoardPrintable + " ");
 			}
 			System.out.println();
@@ -489,8 +505,8 @@ public class GameBoard2 {
 		System.out.println();
 
 		System.out.println("ServerBoard:");
-		for (Tile[] row : ServerBoard) {
-			for (Tile column : row) {
+		for (ServerTile[] row : ServerBoard) {
+			for (ServerTile column : row) {
 				System.out.print(column.serverBoardHitMarker + " ");
 			}
 			System.out.println();
@@ -499,11 +515,19 @@ public class GameBoard2 {
 		System.out.println();
 	}
 
-	static void debugPrintTile(Tile t) {
+	static void debugPrintTile(PlayerTile t) {
+		System.out.println("Debug PlayerTile");
 		System.out.println("ID: " + t.ID);
 		System.out.println("Hit: " + t.hit);
+		System.out.println("PlayerBoardMarker: " + t.playerBoardPrintable);
+		System.out.println();
+	}
+	
+	static void debugPrintTile2(ServerTile t) {
+		System.out.println("Debug ServerTile");
+		System.out.println("Hit: " + t.hit);
 		System.out.println("HitMarker: " + t.serverBoardHitMarker);
-		System.out.println("PlayerBoard: " + t.playerBoardPrintable);
+		System.out.println();
 	}
 
 	//
@@ -517,9 +541,17 @@ public class GameBoard2 {
 		x.AddShip(0, 0, 5, "south", 1);
 		x.printBoard();
 		debugPrintTile(x.PlayerBoard[0][0]);
-
 		
+		x.hit(0, 0, "Green");
+		x.printBoard();
+		debugPrintTile(x.PlayerBoard[0][0]);
+		debugPrintTile2(x.ServerBoard[0][0]);
 
+		x.hit(4, 4, "Green");
+		x.printBoard();
+		debugPrintTile(x.PlayerBoard[4][4]);
+		debugPrintTile2(x.ServerBoard[4][4]);
+		
 		// int y = x.checkBounds(4, 0, 5, "south");
 
 		// System.out.println(y);
