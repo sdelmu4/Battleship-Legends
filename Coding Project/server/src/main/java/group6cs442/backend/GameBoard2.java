@@ -1,8 +1,9 @@
 package group6cs442.backend;
 
-import group6cs442.backend.Player.Player;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 // GameBoard2 Class
 // A second version of the GameBoard Class written in retrospective
@@ -27,8 +28,8 @@ public class GameBoard2 {
 		String type = "Empty";
 		String ID = "None";
 		boolean hit = false;
-		String hitMarker = "None";
-		String printable = ". ";
+		String serverBoardHitMarker = ". ";
+		String playerBoardPrintable = ". ";
 	}
 
 	private Tile[][] PlayerBoard;
@@ -179,7 +180,7 @@ public class GameBoard2 {
 			ShipInfo newShip = new ShipInfo();
 			Tile newTile = new Tile();
 			newTile.type = "Ship";
-			newTile.printable = shipIdentifier;
+			newTile.playerBoardPrintable = shipIdentifier;
 
 			newShip.shipName = shipIdentifier;
 			newShip.size = shipSize;
@@ -480,7 +481,7 @@ public class GameBoard2 {
 		System.out.println("PlayerBoard:");
 		for (Tile[] row : PlayerBoard) {
 			for (Tile column : row) {
-				System.out.print(column.printable + " ");
+				System.out.print(column.playerBoardPrintable + " ");
 			}
 			System.out.println();
 		}
@@ -490,12 +491,19 @@ public class GameBoard2 {
 		System.out.println("ServerBoard:");
 		for (Tile[] row : ServerBoard) {
 			for (Tile column : row) {
-				System.out.print(column.printable + " ");
+				System.out.print(column.serverBoardHitMarker + " ");
 			}
 			System.out.println();
 		}
 
 		System.out.println();
+	}
+
+	static void debugPrintTile(Tile t) {
+		System.out.println("ID: " + t.ID);
+		System.out.println("Hit: " + t.hit);
+		System.out.println("HitMarker: " + t.serverBoardHitMarker);
+		System.out.println("PlayerBoard: " + t.playerBoardPrintable);
 	}
 
 	//
@@ -506,10 +514,11 @@ public class GameBoard2 {
 		GameBoard2 x = new GameBoard2();
 
 		x.printBoard();
-
 		x.AddShip(0, 0, 5, "south", 1);
-
 		x.printBoard();
+		debugPrintTile(x.PlayerBoard[0][0]);
+
+		
 
 		// int y = x.checkBounds(4, 0, 5, "south");
 
