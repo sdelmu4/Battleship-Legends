@@ -9,6 +9,9 @@ import java.util.*;
 //
 // After completing this project for class, I felt I wasn't utilizing the full potential of Java as an object-orientated language.
 // Therefore, this is written and tested as a concept of what would've been done.
+//
+// NOTE: None of the methods that connect this class to the front end are implemented. This is simply a rewrite
+//       	or reconstruction of how data is encapsulated and used.
 
 //@JsonSerialize(using = GameBoardSerializer.class)
 public class GameBoard2 {
@@ -25,7 +28,7 @@ public class GameBoard2 {
 		String ID = "None";
 		boolean hit = false;
 		String hitMarker = "None";
-		String printable = ".";
+		String printable = ". ";
 	}
 
 	private Tile[][] PlayerBoard;
@@ -104,6 +107,14 @@ public class GameBoard2 {
 	public GameBoard2() {
 		PlayerBoard = new Tile[10][10];
 		ServerBoard = new Tile[10][10];
+		
+		for (int i = 0; i < 10; i++) {
+			for (int j = 0; j < 10; j++) {
+				Tile t = new Tile();
+				PlayerBoard[i][j] = t;
+				ServerBoard[i][j] = t;
+			}
+		}
 	}
 
 	// public void setPlayerBoard(String[][] playerBoard) {
@@ -419,7 +430,7 @@ public class GameBoard2 {
 					System.out.println("ERROR: Out of bounds");
 					return -1;
 				}
-				if (!PlayerBoard[row - i][col].type.equals("Ship")) {
+				if (PlayerBoard[row - i][col].type.equals("Ship")) {
 					System.out.println("ERROR: Ship Collision");
 					return -2;
 				}
@@ -430,7 +441,7 @@ public class GameBoard2 {
 					System.out.println("ERROR: Out of bounds");
 					return -1;
 				}
-				if (!PlayerBoard[row + i][col].type.equals("Ship")) {
+				if (PlayerBoard[row + i][col].type.equals("Ship")) {
 					System.out.println("ERROR: Ship Collision");
 					return -2;
 				}
@@ -441,7 +452,7 @@ public class GameBoard2 {
 					System.out.println("ERROR: Out of bounds");
 					return -1;
 				}
-				if (!PlayerBoard[row][col + i].type.equals("Ship")) {
+				if (PlayerBoard[row][col + i].type.equals("Ship")) {
 					System.out.println("ERROR: Ship Collision");
 					return -2;
 				}
@@ -452,7 +463,7 @@ public class GameBoard2 {
 					System.out.println("ERROR: Out of bounds");
 					return -1;
 				}
-				if (!PlayerBoard[row][col - i].type.equals("Ship")) {
+				if (PlayerBoard[row][col - i].type.equals("Ship")) {
 					System.out.println("ERROR: Ship Collision");
 					return -2;
 				}
@@ -496,9 +507,9 @@ public class GameBoard2 {
 
 		x.printBoard();
 
-		// x.AddShip(0, 0, 5, "south", 1);
+		x.AddShip(0, 0, 5, "south", 1);
 
-		// x.printBoard();
+		x.printBoard();
 
 		// int y = x.checkBounds(4, 0, 5, "south");
 
